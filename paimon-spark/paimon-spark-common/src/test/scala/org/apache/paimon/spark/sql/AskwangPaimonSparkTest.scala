@@ -19,15 +19,14 @@
 package org.apache.paimon.spark.sql
 
 import org.apache.paimon.spark.PaimonSparkTestBase
-
 import org.apache.spark.scheduler.{SparkListener, SparkListenerStageSubmitted}
 
+import scala.jdk.CollectionConverters._
+
 /**
- * 日常测试sql记录
- * - 不加assert之类check操作
+ * paimon spark test.
  */
 class AskwangPaimonSparkTest extends PaimonSparkTestBase {
-  import testImplicits._
 
   test(s"Partition for partitioned table: tmp") {
     val hasPk = true

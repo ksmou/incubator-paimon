@@ -19,25 +19,20 @@
 package org.apache.paimon.spark.sql
 
 import org.apache.paimon.spark.PaimonSparkTestBase
+
 import org.apache.spark.scheduler.{SparkListener, SparkListenerStageSubmitted}
 
 import scala.jdk.CollectionConverters._
 
-/**
- * paimon spark test.
- */
+/** paimon spark test. */
 class AskwangPaimonSparkTest extends PaimonSparkTestBase {
-
   test(s"Partition for partitioned table: tmp") {
     val hasPk = true
     val bucket = 4
-    val prop = if (hasPk) {
-      s"'primary-key'='a,b,dt,hh', 'bucket' = '$bucket' "
-    } else if (bucket != -1) {
-      s"'bucket-key'='a,b', 'bucket' = '$bucket' "
-    } else {
-      "'write-only'='true'"
-    }
+    val prop =
+      if (hasPk) s"'primary-key'='a,b,dt,hh', 'bucket' = '$bucket' "
+      else if (bucket != -1) s"'bucket-key'='a,b', 'bucket' = '$bucket' "
+      else "'write-only'='true'"
 
     spark.sql(s"""
                  |CREATE TABLE T (a VARCHAR(10), b CHAR(10),c BIGINT,dt LONG,hh VARCHAR(4))
@@ -56,9 +51,7 @@ class AskwangPaimonSparkTest extends PaimonSparkTestBase {
 
     spark.sql("show partitions T ").show(false)
 
-    println("=====")
     spark.sql("select * from `T$buckets`").show(false)
-    println("xxx")
   }
 
   test("Paimon Procedure: test aware-bucket compaction read parallelism") {
@@ -104,5 +97,4 @@ class AskwangPaimonSparkTest extends PaimonSparkTestBase {
   test("tmp: xxx") {
     println("version: " + sparkVersion)
   }
-
 }

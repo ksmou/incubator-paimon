@@ -32,6 +32,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** paimon flink test. */
 public class AskwangPaimonFlinkTest extends CatalogITCaseBase {
 
     @Test

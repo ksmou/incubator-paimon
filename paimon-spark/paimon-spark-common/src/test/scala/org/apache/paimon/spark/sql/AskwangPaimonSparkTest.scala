@@ -101,4 +101,8 @@ class AskwangPaimonSparkTest extends PaimonSparkTestBase {
     }
   }
 
+  test("tmp: xxx") {
+    println("version: " + sparkVersion)
+  }
+
 }

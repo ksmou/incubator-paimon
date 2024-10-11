@@ -153,6 +153,22 @@ class AskwangPaimonSparkTest extends PaimonSparkTestBase {
       Row("[2024-10-10, 01]", 0) :: Row("[2024-10-10, 01]", 1) :: Row("[2024-10-10, 01]", 2) :: Nil)
   }
 
+  test("PaimonPartitionManagement show partitions") {
+    spark.sql(s"""
+                 |CREATE TABLE T (a INT, b STRING,dt STRING,hh STRING)
+                 |PARTITIONED BY (dt, hh)
+                 |TBLPROPERTIES ('primary-key'='a,dt,hh', 'bucket' = '3')
+                 |""".stripMargin)
+
+    spark.sql("INSERT INTO T VALUES(1, 'a', '2024-10-10', '01')")
+    spark.sql("INSERT INTO T VALUES(3, 'c', '2024-10-10', '23')")
+    spark.sql("INSERT INTO T VALUES(2, 'b', '2024-10-10', '12')")
+    spark.sql("INSERT INTO T VALUES(5, 'f', '2024-10-09', '02')")
+    spark.sql("INSERT INTO T VALUES(4, 'd', '2024-10-09', '01')")
+
+    spark.sql("show partitions T").show(false)
+  }
+
   test("tmp: xxx") {
     println("version: " + sparkVersion)
   }

@@ -55,6 +55,7 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static org.apache.paimon.utils.FileStorePathFactory.BUCKET_PATH_PREFIX;
@@ -246,6 +247,9 @@ public abstract class OrphanFilesClean implements Serializable {
             return filterDirs(dirs, p -> p.getName().startsWith(BUCKET_PATH_PREFIX));
         }
 
+        // 比如分区为 tb/day=2024-11-28, tb/day=2024-11-29, tb/snapshot
+        // day=2024-11-28/bucket-0/, day=2024-11-28/bucket-1/
+        // 这里过滤出分区级别的目录
         List<Path> partitionPaths = filterDirs(dirs, p -> p.getName().contains("="));
 
         List<Path> result = new ArrayList<>();
@@ -253,6 +257,32 @@ public abstract class OrphanFilesClean implements Serializable {
             result.addAll(listFileDirs(partitionPath, level - 1));
         }
         return result;
+    }
+
+    private List<Path> listFileDirsAskwang(Path dir, int level) {
+        List<FileStatus> dirs = tryBestListingDirs(dir);
+
+        if (level == 0) {
+            return filterDirsAskwang(dirs, p -> p.getName().startsWith(BUCKET_PATH_PREFIX));
+        }
+        List<Path> partitionPaths = filterDirsAskwang(dirs, p -> p.getName().contains("="));
+
+        List<Path> result = new ArrayList<>();
+        for (Path partitionPath : partitionPaths) {
+            result.addAll(listFileDirsAskwang(partitionPath, level - 1));
+        }
+        return result;
+    }
+
+    private List<Path> filterDirsAskwang(List<FileStatus> statuses, Predicate<Path> filter) {
+        List<Path> filtered = new ArrayList<>();
+        for (FileStatus status : statuses) {
+            Path path = status.getPath();
+            if (filter.test(path)) {
+                filtered.add(path);
+            }
+        }
+        return filtered;
     }
 
     private List<Path> filterDirs(List<FileStatus> statuses, Predicate<Path> filter) {

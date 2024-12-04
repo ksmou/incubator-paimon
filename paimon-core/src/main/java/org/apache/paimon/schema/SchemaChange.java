@@ -64,6 +64,7 @@ public interface SchemaChange extends Serializable {
         return new AddColumn(fieldNames, dataType, comment, move);
     }
 
+
     static SchemaChange renameColumn(String fieldName, String newName) {
         return new RenameColumn(new String[] {fieldName}, newName);
     }

@@ -117,6 +117,7 @@ public class ExpireSnapshotsImpl implements ExpireSnapshots {
         // (the maximum number of snapshots allowed to expire at a time)
         maxExclusive = Math.min(maxExclusive, earliest + maxDeletes);
 
+        // [min, maxExclusive) 是可以过期的范围，最小范围的过期是在 [earliest, min)，最大的过期范围是 [earliest, maxExclusive)
         for (long id = min; id < maxExclusive; id++) {
             // Early exit the loop for 'snapshot.time-retained'
             // (the maximum time of snapshots to retain)
@@ -164,6 +165,7 @@ public class ExpireSnapshotsImpl implements ExpireSnapshots {
         // delete merge tree files
         // deleted merge tree files in a snapshot are not used by the next snapshot, so the range of
         // id should be (beginInclusiveId, endExclusiveId]
+        // askwang-done: 为什从 +1 开始，这样的话 earliest snapshot 岂不是不会被删除？（这里只是删除 data file，下面会从 earliest 开始删除 snapshot）
         for (long id = beginInclusiveId + 1; id <= endExclusiveId; id++) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Ready to delete merge tree files not used by snapshot #" + id);
@@ -236,6 +238,7 @@ public class ExpireSnapshotsImpl implements ExpireSnapshots {
             }
         }
 
+        // 这里才是删除 snapshot 文件的时候，是从 earliest snapshot 开始删除的。
         for (long id = beginInclusiveId; id < endExclusiveId; id++) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Ready to delete manifests in snapshot #" + id);
@@ -252,6 +255,7 @@ public class ExpireSnapshotsImpl implements ExpireSnapshots {
             if (expireConfig.isChangelogDecoupled()) {
                 commitChangelog(new Changelog(snapshot));
             }
+            // 删除的并不是 earliest snapshot id？
             snapshotManager.fileIO().deleteQuietly(snapshotManager.snapshotPath(id));
         }
 

@@ -39,6 +39,7 @@ import org.apache.spark.sql.catalyst.analysis.TableAlreadyExistsException;
 import org.apache.spark.sql.connector.catalog.Identifier;
 import org.apache.spark.sql.connector.catalog.NamespaceChange;
 import org.apache.spark.sql.connector.catalog.TableCatalog;
+import org.apache.spark.sql.connector.catalog.TableCatalogCapability;
 import org.apache.spark.sql.connector.catalog.TableChange;
 import org.apache.spark.sql.connector.expressions.FieldReference;
 import org.apache.spark.sql.connector.expressions.IdentityTransform;
@@ -62,8 +63,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.apache.paimon.CoreOptions.FILE_FORMAT;
@@ -114,6 +117,13 @@ public class SparkCatalog extends SparkBaseCatalog implements SupportFunction, S
             } catch (NamespaceAlreadyExistsException ignored) {
             }
         }
+    }
+
+    @Override
+    public Set<TableCatalogCapability> capabilities() {
+        HashSet<TableCatalogCapability> set = new HashSet<>();
+        set.add(TableCatalogCapability.SUPPORT_COLUMN_DEFAULT_VALUE);
+        return set;
     }
 
     @Override

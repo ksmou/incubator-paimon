@@ -188,6 +188,7 @@ public abstract class FileDeletionBase<T extends Snapshot> {
             getDataFileToDelete(dataFileToDelete, manifestEntries);
         }
 
+        // 执行删除逻辑
         doCleanUnusedDataFile(dataFileToDelete, skipper);
     }
 
@@ -198,6 +199,7 @@ public abstract class FileDeletionBase<T extends Snapshot> {
         dataFileToDelete.forEach(
                 (path, pair) -> {
                     ManifestEntry entry = pair.getLeft();
+                    // skipper.test(entry) == true，表示需要 skip 掉
                     // check whether we should skip the data file
                     if (!skipper.test(entry)) {
                         // delete data files
@@ -218,6 +220,7 @@ public abstract class FileDeletionBase<T extends Snapshot> {
         for (ManifestEntry entry : dataFileEntries) {
             Path bucketPath = pathFactory.bucketPath(entry.partition(), entry.bucket());
             Path dataFilePath = new Path(bucketPath, entry.file().fileName());
+            // 获取要删除的 data file 逻辑，什么情况下 ADD，什么情况下 DELETE，和 manifest merge 细节有点像
             switch (entry.kind()) {
                 case ADD:
                     dataFileToDelete.remove(dataFilePath);

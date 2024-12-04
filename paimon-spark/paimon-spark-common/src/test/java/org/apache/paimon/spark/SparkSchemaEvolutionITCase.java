@@ -94,6 +94,20 @@ public class SparkSchemaEvolutionITCase extends SparkReadTestBase {
     }
 
     @Test
+    public void testAddColumnAskwang() {
+        createTable("testAddColumn");
+        writeTable("testAddColumn", "(1, 2L, '1')", "(5, 6L, '3')");
+
+        List<Row> beforeAdd = spark.sql("SHOW CREATE TABLE testAddColumn").collectAsList();
+        assertThat(beforeAdd.toString()).contains(defaultShowCreateString("testAddColumn"));
+
+        //spark.sql("ALTER TABLE testAddColumn ADD COLUMN d STRING default 'default-value' comment 'default-comment'");
+        spark.sql("ALTER TABLE testAddColumn ADD COLUMN d int default 50+50 comment 'defalut-comment'");
+
+        spark.sql("show create table testAddColumn").show(false);
+    }
+
+    @Test
     public void testAddNotNullColumn() {
         createTable("testAddNotNullColumn");
 
